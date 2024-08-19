@@ -4,7 +4,7 @@
 """
 from torch import nn
 
-from utils import MultiHeadAttention, PositionWiseFeedForward, LayerNorm
+from .utils import MultiHeadAttention, PositionWiseFeedForward, LayerNorm
 
 # an encoder layer has two sub-layer connect with  residual connection and LayerNorm
 class EncoderLayer(nn.Module):
@@ -18,9 +18,9 @@ class EncoderLayer(nn.Module):
         self.dropout2 = nn.Dropout(p=drop_prob)
         self.norm2 = LayerNorm(d_model=d_model)
 
-    def forward(self, x):
+    def forward(self, x, src_mask=None):
         # sub-layer1
-        x = x + self.dropout1(self.attention(Q=x, K=x, V=x))
+        x = x + self.dropout1(self.attention(Q=x, K=x, V=x, atten_mask = src_mask))
         x = self.norm1(x)
         
         # sub-layer2
@@ -34,15 +34,15 @@ class DecoderLayer(nn.Module):
 
         self.self_attention=MultiHeadAttention(d_model=d_model, h_head=h_head)
         self.dropout1 = nn.Dropout(p=drop_prob)
-        self.norm1 = LayerNorm(p=drop_prob)
+        self.norm1 = LayerNorm(d_model=d_model)
 
         self.enc_attention=MultiHeadAttention(d_model=d_model, h_head=h_head)
         self.dropout2 = nn.Dropout(p=drop_prob)
-        self.norm2 = LayerNorm(p=drop_prob)
+        self.norm2 = LayerNorm(d_model=d_model)
 
         self.ffn = PositionWiseFeedForward(d_model=d_model, d_ff=d_ffn, dropout=drop_prob)
         self.dropout3 = nn.Dropout(p=drop_prob)
-        self.norm3 = LayerNorm(p=drop_prob)
+        self.norm3 = LayerNorm(d_model=d_model)
     
     def forward(self, dec_x, enc_x, tgt_mask, src_mask):
         # sublayer1

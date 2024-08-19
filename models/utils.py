@@ -66,9 +66,6 @@ class MultiHeadAttention(nn.Module):
         d_model = h * d_tensor
         return x.transpose(1, 2).contiguous().view(bs, length, d_model)
 
-
-
-
 class PositionWiseFeedForward(nn.Module):
 
     def __init__(self, d_model = 512, d_ff = 2048, dropout=0.1):
